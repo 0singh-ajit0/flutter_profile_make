@@ -23,15 +23,15 @@ class ProfileService {
 
   Future<void> createProfile({
     required BuildContext context,
-    required String email,
+    required String phoneNum,
     required String name,
   }) async {
     String profileId = AuthService
         .instance.currentUser!.uid; // Creates unique id based on time
     Profile profile = Profile(
-      email: email,
-      name: name,
       id: profileId,
+      name: name,
+      phoneNum: phoneNum,
     );
     await _firestore
         .collection("profiles")
@@ -55,7 +55,7 @@ class ProfileService {
   Future<void> updatedProfile({
     required BuildContext context,
     String? name,
-    String? phoneNum,
+    String? email,
     Uint8List? image,
   }) async {
     final currentProfile = context.read<ProfileProvider>().currentProfile;
@@ -74,8 +74,8 @@ class ProfileService {
       currentProfile.name = name;
     }
 
-    if (phoneNum != null) {
-      currentProfile.phoneNum = phoneNum;
+    if (email != null) {
+      currentProfile.email = email;
     }
 
     await _firestore

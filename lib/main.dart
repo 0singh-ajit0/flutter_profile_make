@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:paypie_flutter/firebase_options.dart';
 import 'package:paypie_flutter/providers/profile_provider.dart';
 import 'package:paypie_flutter/services/auth_service.dart';
-import 'package:paypie_flutter/views/auth/login_view.dart';
+import 'package:paypie_flutter/views/auth/verify_phone_view.dart';
 import 'package:paypie_flutter/views/homescreen_view.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +35,7 @@ class App extends StatelessWidget {
         ),
         home: AuthService.instance.currentUser != null
             ? const HomeScreenView()
-            : const LoginView(),
+            : const VerifyPhoneView(),
       ),
     );
   }

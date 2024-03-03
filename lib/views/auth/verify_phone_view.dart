@@ -1,39 +1,36 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paypie_flutter/common/utils/snackbar.dart';
 import 'package:paypie_flutter/common/widgets/custom_textformfield.dart';
 import 'package:paypie_flutter/services/auth_service.dart';
-import 'package:paypie_flutter/services/profile_service.dart';
-import 'package:paypie_flutter/views/auth/login_view.dart';
 import 'package:paypie_flutter/views/homescreen_view.dart';
 
-class SignUpView extends StatefulWidget {
-  const SignUpView({super.key});
+class VerifyPhoneView extends StatefulWidget {
+  const VerifyPhoneView({super.key});
 
   @override
-  State<SignUpView> createState() => _SignUpViewState();
+  State<VerifyPhoneView> createState() => _VerifyPhoneViewState();
 }
 
-class _SignUpViewState extends State<SignUpView> {
+class _VerifyPhoneViewState extends State<VerifyPhoneView> {
   late final TextEditingController _nameController;
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
+  late final TextEditingController _phoneController;
 
-  final _signUpFormKey = GlobalKey<FormState>();
+  final _phoneVerifyFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
+    _phoneController = TextEditingController();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -41,13 +38,13 @@ class _SignUpViewState extends State<SignUpView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign Up"),
+        title: const Text("Register / Log in"),
         elevation: 3,
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Form(
-            key: _signUpFormKey,
+            key: _phoneVerifyFormKey,
             child: Column(
               children: [
                 Padding(
@@ -63,36 +60,21 @@ class _SignUpViewState extends State<SignUpView> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: CustomTextFormField(
-                    hintText: "Enter your email",
-                    keyboardType: TextInputType.emailAddress,
-                    suffixIcon: const Icon(Icons.email_outlined),
-                    controller: _emailController,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CustomTextFormField(
-                    hintText: "Enter a password",
-                    keyboardType: TextInputType.visiblePassword,
-                    isObscureText: true,
-                    suffixIcon: const Icon(Icons.password_outlined),
-                    controller: _passwordController,
+                    hintText: "Enter your phone number",
+                    keyboardType: TextInputType.phone,
+                    suffixIcon: const Icon(Icons.phone_outlined),
+                    controller: _phoneController,
                   ),
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      if (_signUpFormKey.currentState!.validate()) {
-                        await AuthService.instance.signUp(
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                        );
-                        await ProfileService.instance.createProfile(
+                      if (_phoneVerifyFormKey.currentState!.validate()) {
+                        await AuthService.instance.phoneSignIn(
                           context: context,
-                          email: _emailController.text,
                           name: _nameController.text,
+                          phoneNum: _phoneController.text,
                         );
                         if (AuthService.instance.currentUser != null) {
                           Navigator.of(context).pushReplacement(
@@ -104,15 +86,10 @@ class _SignUpViewState extends State<SignUpView> {
                             context,
                             "You're logged in now",
                           );
-                        } else {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const LoginView(),
-                            ),
-                          );
                         }
                       }
                     } on FirebaseAuthException catch (err) {
+                      log("Error code: ${err.code}");
                       switch (err.code) {
                         case "email-already-in-use":
                           showSnackbar(
@@ -152,23 +129,7 @@ class _SignUpViewState extends State<SignUpView> {
                       vertical: 12,
                     )),
                   ),
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const LoginView(),
-                      ),
-                    );
-                  },
-                  child: const Text("Already registered? Login Here"),
+                  child: const Text("Verify Phone number"),
                 ),
               ],
             ),

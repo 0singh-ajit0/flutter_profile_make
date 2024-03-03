@@ -9,10 +9,10 @@ class Profile {
 
   Profile({
     required this.id,
-    required this.email,
     required this.name,
+    required this.phoneNum,
     this.profilePicUrl = "",
-    this.phoneNum = "",
+    this.email = "",
   });
 
   static Profile fromSnapshot(DocumentSnapshot snap) {
@@ -20,18 +20,18 @@ class Profile {
 
     return Profile(
       id: snapshot["id"],
-      email: snapshot["email"],
       name: snapshot["name"],
-      profilePicUrl: snapshot["profilePicUrl"],
       phoneNum: snapshot["phoneNum"],
+      email: snapshot["email"],
+      profilePicUrl: snapshot["profilePicUrl"],
     );
   }
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "email": email,
         "name": name,
-        "profilePicUrl": profilePicUrl,
         "phoneNum": phoneNum,
+        "email": email,
+        "profilePicUrl": profilePicUrl,
       };
 }

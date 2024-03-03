@@ -10,7 +10,7 @@ import 'package:paypie_flutter/common/widgets/custom_textformfield.dart';
 import 'package:paypie_flutter/providers/profile_provider.dart';
 import 'package:paypie_flutter/services/auth_service.dart';
 import 'package:paypie_flutter/services/profile_service.dart';
-import 'package:paypie_flutter/views/auth/login_view.dart';
+import 'package:paypie_flutter/views/auth/verify_phone_view.dart';
 import 'package:provider/provider.dart';
 
 enum MenuAction { logout }
@@ -99,7 +99,7 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                       await AuthService.instance.logOut();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => const LoginView(),
+                          builder: (context) => const VerifyPhoneView(),
                         ),
                       );
                     }
@@ -172,12 +172,12 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                       CustomTextFormField(
                         hintText: "Enter your email",
                         controller: _emailController,
-                        enabled: false,
                       ),
                       const SizedBox(height: 8),
                       CustomTextFormField(
                         hintText: "Enter your phone number",
                         controller: _phoneController,
+                        enabled: false,
                         keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 12),
@@ -187,7 +187,7 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                             await ProfileService.instance.updatedProfile(
                               context: context,
                               name: _nameController.text,
-                              phoneNum: _phoneController.text,
+                              email: _emailController.text,
                               image: _image,
                             );
                             showSnackbar(context, "Profile updated");
@@ -201,7 +201,7 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                           )),
                         ),
                         child: const Text(
-                          "Update",
+                          "Update Profile",
                           style: TextStyle(
                             fontSize: 16,
                           ),

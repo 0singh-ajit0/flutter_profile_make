@@ -1,82 +1,80 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paypie_flutter/common/utils/snackbar.dart';
 import 'package:paypie_flutter/common/widgets/custom_textformfield.dart';
 import 'package:paypie_flutter/services/auth_service.dart';
 import 'package:paypie_flutter/services/profile_service.dart';
-import 'package:paypie_flutter/views/auth/signup_view.dart';
 import 'package:paypie_flutter/views/homescreen_view.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class VerifyOTPView extends StatefulWidget {
+  final String name;
+  final String phoneNum;
+  final String verificationId;
+  const VerifyOTPView({
+    super.key,
+    required this.verificationId,
+    required this.name,
+    required this.phoneNum,
+  });
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<VerifyOTPView> createState() => _VerifyOTPViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
-
-  final _signInFormKey = GlobalKey<FormState>();
+class _VerifyOTPViewState extends State<VerifyOTPView> {
+  late final TextEditingController _otpController;
+  final _otpFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
+    _otpController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    log("user: ${AuthService.instance.currentUser}");
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("Verify OTP"),
         elevation: 3,
       ),
       body: Center(
         child: Form(
-          key: _signInFormKey,
+          key: _otpFormKey,
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CustomTextFormField(
-                  hintText: "Enter your email",
-                  keyboardType: TextInputType.emailAddress,
-                  suffixIcon: const Icon(Icons.email_outlined),
-                  controller: _emailController,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CustomTextFormField(
-                  hintText: "Enter a password",
-                  keyboardType: TextInputType.visiblePassword,
-                  isObscureText: true,
+                  hintText: "Enter the OTP",
+                  keyboardType: TextInputType.number,
                   suffixIcon: const Icon(Icons.password_outlined),
-                  controller: _passwordController,
+                  controller: _otpController,
                 ),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () async {
                   try {
-                    if (_signInFormKey.currentState!.validate()) {
-                      await AuthService.instance.logIn(
-                        email: _emailController.text,
-                        password: _passwordController.text,
+                    if (_otpFormKey.currentState!.validate()) {
+                      await AuthService.instance.verifyOTP(
+                        verificationId: widget.verificationId,
+                        smsCode: _otpController.text,
                       );
-                      await ProfileService.instance
-                          .loadProfile(context: context);
+                      await ProfileService.instance.createProfile(
+                        context: context,
+                        phoneNum: widget.phoneNum,
+                        name: widget.name,
+                      );
                       if (AuthService.instance.currentUser != null) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
@@ -90,6 +88,7 @@ class _LoginViewState extends State<LoginView> {
                       }
                     }
                   } on FirebaseAuthException catch (err) {
+                    log("Error code: ${err.code}");
                     switch (err.code) {
                       case "user-disabled":
                         showSnackbar(
@@ -125,23 +124,7 @@ class _LoginViewState extends State<LoginView> {
                     vertical: 12,
                   )),
                 ),
-                child: const Text(
-                  "Log In",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const SignUpView(),
-                    ),
-                  );
-                },
-                child: const Text("Not registered? Register Here"),
+                child: const Text("Verify OTP"),
               ),
             ],
           ),

@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:paypie_flutter/views/auth/verify_otp_view.dart';
 
 class AuthService {
   static final AuthService _singleton = AuthService._internal();
@@ -33,6 +35,43 @@ class AuthService {
       email: email,
       password: password,
     );
+  }
+
+  // OTP Login
+  Future<void> phoneSignIn({
+    required BuildContext context,
+    required String name,
+    required String phoneNum,
+  }) async {
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNum,
+      verificationCompleted: (phoneAuthCredential) {},
+      verificationFailed: (error) {},
+      codeSent: (verificationId, forceResendingToken) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => VerifyOTPView(
+              name: name,
+              phoneNum: phoneNum,
+              verificationId: verificationId,
+            ),
+          ),
+        );
+      },
+      codeAutoRetrievalTimeout: (verificationId) {},
+    );
+  }
+
+  // Verify OTP
+  Future<void> verifyOTP({
+    required String verificationId,
+    required String smsCode,
+  }) async {
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+    await _auth.signInWithCredential(credential);
   }
 
   // Log out
